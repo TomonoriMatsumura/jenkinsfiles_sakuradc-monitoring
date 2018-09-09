@@ -7,11 +7,7 @@ pipeline {
   stages {
     stage('Get Contents from Sakura Server') {
       steps {
-        sh "rm -rf output.txt"
-        sh "rm -rf output.pdf"
-
         sh "google-chrome --headless --disable-gpu --print-to-pdf http://support.sakura.ad.jp/mainte/mainteentry.php?id=24776"
-
         sh "pdftotext output.pdf output.txt"
       }
     }
@@ -20,12 +16,13 @@ pipeline {
   post {
     always {
       script {
-          def output = sh(
-                          returnStdout: true,
-                          script: "cat output.txt | tail -n 50"
-                       )
+        def output = sh(
+                        returnStdout: true,
+                        script: "cat output.txt | tail -n 50"
+                     )
 
-      slackSend message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER}\n\n\n\n$output"
+        slackSend message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER}\n\n\n\n$output"
+        cleanWs()
       }
     }
   }
